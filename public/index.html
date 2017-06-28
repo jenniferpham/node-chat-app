@@ -5,5 +5,17 @@
     </head>
     <body>
         <p>Welcome to the chat app</p>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+             var socket = io(); //initiating request from client to server to create the connection. this starts the connection process btw client and server.  events can be emitted from client and server and either one can listen to it
+
+             socket.on('connect', ()=> {
+                 console.log('connected to server');
+             }) // listen for event
+
+             socket.on('disconnect', ()=> {
+                 console.log('disconnected from server')
+             })
+        </script>
     </body>
 </html>
