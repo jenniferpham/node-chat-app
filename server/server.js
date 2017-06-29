@@ -16,6 +16,26 @@ app.use(express.static(publicPath)); //configure express static middleware that 
 io.on('connection', (socket) => { //register an event listener and do something when that event listens. listen for new connection.  socket represents individual socket. if one is down, they keep trying to reconnect
     console.log('new user connected');
 
+    socket.emit('newEmail', {
+        from: 'mike@example.com',
+        text: 'hey whats up',
+        createdAt: 123
+    });
+
+    socket.emit('newMessage', {
+        from: 'Jon Martinez',
+        text: 'Im learning js',
+        createdAt: 123
+    })
+
+    socket.on('createMessage', function(message){
+        console.log('Client created a message', message);
+    })
+
+    socket.on('createEmail', (newEmail) => {
+        console.log('createEmail', newEmail);
+    })
+
     socket.on('disconnect', ()=> {
         console.log('User was disconnected - gfrom client');
     })
