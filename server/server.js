@@ -30,6 +30,11 @@ io.on('connection', (socket) => { //register an event listener and do something 
 
     socket.on('createMessage', function(message){
         console.log('Client created a message', message);
+        io.emit('newMessage', {  //io.emit sends message to all users taht are connected
+            from: message.from,
+            text: message.text,
+            createdAt: new Date().getTime()
+        })
     })
 
     socket.on('createEmail', (newEmail) => {
