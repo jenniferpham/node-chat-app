@@ -3,6 +3,7 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 
+const {generateMessage} = require('./utils/message');
 const publicPath = path.join(__dirname, "../public/" ); //resolves file structure without dots
 require('../config/config');
 const port = process.env.PORT || 3000; //process.env.PORT comes from config/config.json.  Need this for heroku
@@ -16,17 +17,10 @@ app.use(express.static(publicPath)); //configure express static middleware that 
 io.on('connection', (socket) => { //register an event listener and do something when that event listens. listen for new connection.  socket represents individual socket. if one is down, they keep trying to reconnect
     console.log('new user connected');
 
-    socket.emit('newMessage', {  //socket.emit sends message only to that specific user
-        from: 'Admin',
-        text: 'welcome to the chatroom',
-        createdAt: new Date().getTime()
-    })
+    socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chatroom'));
 
-    socket.broadcast.emit('newMessage', {  //socket.broadcast.emit sends message to all OTHER users (not the main user)
-        from: 'Admin',
-        text: 'New user has joined',
-        createdAt: new Date().getTime()
-    })
+//socket.broadcast.emit sends message to all OTHER users (not the main user)
+    socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user has joined'));
 
     // socket.emit('newEmail', {
     //     from: 'mike@example.com',
@@ -47,11 +41,7 @@ io.on('connection', (socket) => { //register an event listener and do something 
         //     text: message.text,
         //     createdAt: new Date().getTime()
         // })
-         socket.broadcast.emit('newMessage', {  //io.emit sends message to all users taht are connected
-            from: message.from,
-            text: message.text,
-            createdAt: new Date().getTime()
-        })
+         io.emit('newMessage', generateMessage(message.from, message.text));
     })
 
     socket.on('createEmail', (newEmail) => {
