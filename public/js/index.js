@@ -23,25 +23,48 @@ socket.on('newEmail', function(email){
 })
 
  socket.on('newMessage', function(message){
-    console.log('Server sent me a new message', message);
+    var htmlTemplate = jQuery('#message-template').html();  //grabs what will be the html base of the template
     var formattedTime = moment(message.createdAt).format('h:mm:ss a');
+    var renderedHtml = Mustache.render(htmlTemplate, { //first arg is the html template base and second arg is the variables passed into the template as an object
+        text: message.text,
+        from: message.from,
+        time: formattedTime
 
-    var li = $('<li></li>');
-    li.text(`${message.from} ${formattedTime}: ${message.text}`);
+    });
 
-    jQuery('#messages').append(li);
+    jQuery('#messages').append(renderedHtml);
+
+    // console.log('Server sent me a new message', message);
+    // var formattedTime = moment(message.createdAt).format('h:mm:ss a');
+
+    // var li = $('<li></li>');
+    // li.text(`${message.from} ${formattedTime}: ${message.text}`);
+
+    // jQuery('#messages').append(li);
 })
 
 socket.on('newLocationMessage', function(message){
-    var li = jQuery('<li></li>');
-    var a = jQuery('<a target="_blank">My current location</a>');
+    // var li = jQuery('<li></li>');
+    // var a = jQuery('<a target="_blank">My current location</a>');
 
+    // var formattedTime = moment(message.createdAt).format('h:mm:ss a');
+
+    // li.text(`${message.from} ${formattedTime}: `);
+    // a.attr('href', message.url);
+    // li.append(a);
+    // jQuery('#messages').append(li);
     var formattedTime = moment(message.createdAt).format('h:mm:ss a');
 
-    li.text(`${message.from} ${formattedTime}: `);
-    a.attr('href', message.url);
-    li.append(a);
-    jQuery('#messages').append(li);
+    var htmlTemplate = jQuery("#location-message-template").html();
+    var renderedHtml = Mustache.render(htmlTemplate, {
+        from: message.from,
+        url: message.url,
+        time: formattedTime
+    })
+
+    jQuery("#messages").append(renderedHtml);
+
+
 })
 // socket.emit('createMessage', { //first argument is event name. second argument is messageObject, third argument is callback function
 //     from: 'Frank',
