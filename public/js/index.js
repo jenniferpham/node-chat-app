@@ -50,11 +50,12 @@ socket.on('newLocationMessage', function(message){
 jQuery('#message-form').on('submit', function(e){
     e.preventDefault();
 
+    var messageTextbox = jQuery('[name=message]');
     socket.emit('createMessage', {
         from: 'User',
-        text: jQuery('[name=message]').val()
-    }, function(){
-
+        text: messageTextbox.val()
+    }, function(){  //callback used for server acknowledgement once it finishes with the server
+        messageTextbox.val(""); //set value of textbox to blank string. empty form field
     });
 });
 
@@ -64,8 +65,14 @@ locationButton.on('click', function(){
         return alert('geolocation not supported by your browser')
     }
 
+    locationButton.attr('disabled', 'disabled');
+    locationButton.text('Sending Location...');
+
     navigator.geolocation.getCurrentPosition(function(position){
         console.log(position);
+        locationButton.removeAttr('disabled');
+        locationButton.text('Location');
+        
         // var coords = pos.coords;
         // console.log(`Latitude: ${coords.latitude}`);
         // console.log(`Longitude: ${coords.longitude}`);
@@ -76,5 +83,7 @@ locationButton.on('click', function(){
         
     }, function(){ //error handler
         alert('unable to get location') //if user doesnt want to share their location or we cant get their position
+         locationButton.removeAttr('disabled');
+        locationButton.text('Location');
     })
 })
