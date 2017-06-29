@@ -34,7 +34,7 @@ io.on('connection', (socket) => { //register an event listener and do something 
     //     createdAt: 123
     // })
 
-    socket.on('createMessage', function(message){
+    socket.on('createMessage', function(message, callback){
         console.log('Client created a message', message);
         // io.emit('newMessage', {  //io.emit sends message to all users taht are connected
         //     from: message.from,
@@ -42,6 +42,7 @@ io.on('connection', (socket) => { //register an event listener and do something 
         //     createdAt: new Date().getTime()
         // })
          io.emit('newMessage', generateMessage(message.from, message.text));
+         callback('Data successfully went to the server as it is called on the server on listener');  //acknowledgement. server can send something to event listener in client side
     })
 
     socket.on('createEmail', (newEmail) => {
