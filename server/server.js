@@ -3,7 +3,7 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 
-const {generateMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage} = require('./utils/message');
 const publicPath = path.join(__dirname, "../public/" ); //resolves file structure without dots
 require('../config/config');
 const port = process.env.PORT || 3000; //process.env.PORT comes from config/config.json.  Need this for heroku
@@ -43,6 +43,11 @@ io.on('connection', (socket) => { //register an event listener and do something 
         // })
          io.emit('newMessage', generateMessage(message.from, message.text));
          callback('Data successfully went to the server as it is called on the server on listener');  //acknowledgement. server can send something to event listener in client side
+    })
+
+    socket.on('createLocationMessage', function(coords){
+        // io.emit('newMessage', generateMessage('Admin', `Lat: ${coords.latitude}, Lon: ${coords.longitude}`));
+        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
     })
 
     socket.on('createEmail', (newEmail) => {
