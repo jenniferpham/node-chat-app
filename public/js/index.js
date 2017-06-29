@@ -1,5 +1,22 @@
 var socket = io(); //initiating request from client to server to create the connection. this starts the connection process btw client and server.  events can be emitted from client and server and either one can listen to it
 
+function scrollToBottom(){
+    //Selectors
+    var messages = jQuery('#messages');
+    var newMessage = messages.children('li:last-child');
+    //Heights
+    var clientHeight = messages.prop('clientHeight'); //height currently visible of #messages as seen by user
+    var scrollTop = messages.prop('scrollTop'); //height between top of browser and top of clientHeight
+    var scrollHeight = messages.prop('scrollHeight'); //total height of #messages
+    var newMessageHeight = newMessage.innerHeight();
+    var lastMessageHeight = newMessage.prev().innerHeight();
+    
+    if((clientHeight + scrollTop + newMessageHeight + lastMessageHeight) >= scrollHeight){ //if height of messages is past or under the client view, meaning latest messages are at bottom
+        // console.log('should scroll')
+        messages.scrollTop(scrollHeight); //move to bottom
+    }
+}
+
 socket.on('connect', function () {
     console.log('connected to server');
 
@@ -33,6 +50,7 @@ socket.on('newEmail', function(email){
     });
 
     jQuery('#messages').append(renderedHtml);
+    scrollToBottom();
 
     // console.log('Server sent me a new message', message);
     // var formattedTime = moment(message.createdAt).format('h:mm:ss a');
@@ -64,7 +82,7 @@ socket.on('newLocationMessage', function(message){
 
     jQuery("#messages").append(renderedHtml);
 
-
+     scrollToBottom();
 })
 // socket.emit('createMessage', { //first argument is event name. second argument is messageObject, third argument is callback function
 //     from: 'Frank',
@@ -113,3 +131,4 @@ locationButton.on('click', function(){
         locationButton.text('Location');
     })
 })
+
