@@ -3,18 +3,18 @@ var socket = io(); //initiating request from client to server to create the conn
 socket.on('connect', function () {
     console.log('connected to server');
 
-    socket.emit('createEmail', {
-        to: 'jen@example.com',
-        text: 'Hey this is Jenn'
-    })
+    // socket.emit('createEmail', {
+    //     to: 'jen@example.com',
+    //     text: 'Hey this is Jenn'
+    // })
 
-    socket.emit('createMessage', {
-        from: 'Jenn',
-        text: 'you can do it'
-    })
+    // socket.emit('createMessage', {
+    //     from: 'Jenn',
+    //     text: 'you can do it'
+    // })
 }) // listen for event
 
-socket.on('disconnect', function () {
+socket.on('disconnect', function () { //use regular functions instead of arrow functions so it works across all devices
     console.log('disconnected from server')
 })
 
