@@ -61,19 +61,25 @@ io.on('connection', (socket) => { //register an event listener and do something 
     // })
 
     socket.on('createMessage', function(message, callback){
-        console.log('Client created a message', message);
+        var user = users.getUser(socket.id);
+        if(user && isRealString(message.text)){
+            io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+        }
         // io.emit('newMessage', {  //io.emit sends message to all users taht are connected
         //     from: message.from,
         //     text: message.text,
         //     createdAt: new Date().getTime()
         // })
-         io.emit('newMessage', generateMessage(message.from, message.text));
+         
          callback('Data successfully went to the server as it is called on the server on listener');  //acknowledgement. server can send something to event listener in client side
     })
 
     socket.on('createLocationMessage', function(coords){
+        var user = users.getUser(socket.id);
         // io.emit('newMessage', generateMessage('Admin', `Lat: ${coords.latitude}, Lon: ${coords.longitude}`));
-        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+        if(user){
+            io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+        }
     })
 
     socket.on('createEmail', (newEmail) => {

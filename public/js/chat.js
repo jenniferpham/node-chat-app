@@ -118,7 +118,6 @@ jQuery('#message-form').on('submit', function(e){
 
     var messageTextbox = jQuery('[name=message]');
     socket.emit('createMessage', {
-        from: 'User',
         text: messageTextbox.val()
     }, function(){  //callback used for server acknowledgement once it finishes with the server
         messageTextbox.val(""); //set value of textbox to blank string. empty form field
