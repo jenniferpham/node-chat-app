@@ -4,6 +4,8 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 const {generateMessage, generateLocationMessage} = require('./utils/message');
+const {isRealString} = require('./utils/validation');
+const {Users} = require('./utils/users');
 const publicPath = path.join(__dirname, "../public/" ); //resolves file structure without dots
 require('../config/config');
 const port = process.env.PORT || 3000; //process.env.PORT comes from config/config.json.  Need this for heroku
@@ -11,16 +13,40 @@ const port = process.env.PORT || 3000; //process.env.PORT comes from config/conf
 var app = express();
 var server = http.createServer(app); //app.listen() also calls http.createServer(app) (express uses this)
 var io = socketIO(server); //access to localhost:3000 port and also to socket.io/socket.iojs
+var users = new Users(); //can use all methods of the class
 
 app.use(express.static(publicPath)); //configure express static middleware that serves up public folder
 
 io.on('connection', (socket) => { //register an event listener and do something when that event listens. listen for new connection.  socket represents individual socket. if one is down, they keep trying to reconnect
-    console.log('new user connected');
+    // console.log('new user connected');
 
-    socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chatroom'));
+    socket.on('join', (params, callback) => {
+        if(!isRealString(params.name) || !isRealString(params.room)){
+            return callback('Name and room name are required');  //use callback so if there is an error, all of the other code doesnt run
+        }
 
-//socket.broadcast.emit sends message to all OTHER users (not the main user)
-    socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user has joined'));
+        socket.join(params.room);  //connects all people that have that params.room query
+        // socket.leave('the office fans');
+        users.removeUser(socket.id); //remove that person from any other  previous potential rooms
+        users.addUser(socket.id, params.name, params.room);
+
+        io.to(params.room).emit('updateUserList', users.getUserList(params.room)); //message for everyone in that room
+
+        socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chatroom'));
+
+        //socket.broadcast.emit sends message to all OTHER users (not the main user)
+        socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
+
+        // io.emit - to everyone (io) --> io.to('The Office Fans')
+        io.to('The Office Fans').emit;
+        // socket.broadcast.emit - to everyone except yourself
+        socket.broadcast.to('The Office Fans').emit();
+        //socket.emit - to individual
+ 
+        callback();
+    })
+
+   
 
     // socket.emit('newEmail', {
     //     from: 'mike@example.com',
@@ -55,7 +81,13 @@ io.on('connection', (socket) => { //register an event listener and do something 
     })
 
     socket.on('disconnect', ()=> {
-        console.log('User was disconnected - gfrom client');
+        console.log('disconnect');
+        
+        var user = users.removeUser(socket.id);
+        if(user){
+            io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+            io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left the room.`))
+        }
     })
 })
 // app.get('/', function (req, res){

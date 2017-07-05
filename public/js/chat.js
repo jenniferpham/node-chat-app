@@ -20,6 +20,17 @@ function scrollToBottom(){
 socket.on('connect', function () {
     console.log('connected to server');
 
+    var params = jQuery.deparam(window.location.search);
+
+    socket.emit('join', params, function(err){
+        if(err){
+            alert(err);
+            window.location.href = "/";  //redirecting user to root page
+        } else{
+            console.log('no error');
+        }
+    })
+
     // socket.emit('createEmail', {
     //     to: 'jen@example.com',
     //     text: 'Hey this is Jenn'
@@ -33,6 +44,17 @@ socket.on('connect', function () {
 
 socket.on('disconnect', function () { //use regular functions instead of arrow functions so it works across all devices
     console.log('disconnected from server')
+})
+
+socket.on('updateUserList', function (users) {
+    console.log('Users list', users);
+    var ol = jQuery('<ol></ol>');
+    
+    users.forEach(function (user){
+        ol.append(jQuery('<li></li>').text(user))
+    })
+
+    jQuery('#users').html(ol);
 })
 
 socket.on('newEmail', function(email){
